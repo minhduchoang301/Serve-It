@@ -1,0 +1,9 @@
+{
+  "rds_host": "database-2.c904gqqk6wl6.us-east-2.rds.amazonaws.com",
+  "rds_port": "3306",
+  "rds_user": "serveit",
+  "rds_password": "serveit2024",
+  "rds_db": "ServeIt",
+  "server_host": "localhost",
+  "server_port": "8080"
+}

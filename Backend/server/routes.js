@@ -157,46 +157,16 @@ const album_songs = async function(req, res) {
 const top_songs = async function(req, res) {
   const page = req.query.page;
   // TODO (TASK 8): use the ternary (or nullish) operator to set the pageSize based on the query or default to 10
-  const pageSize = req.query.page_size ? req.query.page_size:10;
+  const pageSize = undefined;
+
   if (!page) {
     // TODO (TASK 9)): query the database and return all songs ordered by number of plays (descending)
     // Hint: you will need to use a JOIN to get the album title as well
-    connection.query(`SELECT Songs.song_id, Songs.album_id, Albums.title as album, Songs.title, Songs.plays
-    FROM Songs JOIN Albums ON Songs.album_id=Albums.album_id
-    ORDER BY plays DESC`, (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json({});
-      } else {
-        const items = [];
-        let i = 0;
-        while (i < data.length) {
-          items.push({song_id: data[i].song_id,album:data[i].album, album_id:data[i].album_id, title: data[i].title, plays: data[i].plays});
-          i++;
-        }
-        res.json(items);
-      }
-    });
-
+    res.json([]); // replace this with your implementation
   } else {
     // TODO (TASK 10): reimplement TASK 9 with pagination
     // Hint: use LIMIT and OFFSET (see https://www.w3schools.com/php/php_mysql_select_limit.asp)
-    connection.query(`SELECT Songs.song_id, Songs.album_id, Albums.title as album, Songs.title, Songs.plays
-    FROM Songs JOIN Albums ON Songs.album_id=Albums.album_id
-    ORDER BY plays DESC LIMIT ${pageSize} OFFSET ${(page-1) * pageSize}`, (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json({});
-      } else {
-        const items = [];
-        let i = 0;
-        while (i < data.length) {
-          items.push({song_id: data[i].song_id,album:data[i].album, album_id:data[i].album_id, title: data[i].title, plays: data[i].plays});
-          i++;
-        }
-        res.json(items);
-      }
-    });
+    res.json([]); // replace this with your implementation
   }
 }
 
@@ -204,111 +174,18 @@ const top_songs = async function(req, res) {
 const top_albums = async function(req, res) {
   // TODO (TASK 11): return the top albums ordered by aggregate number of plays of all songs on the album (descending), with optional pagination (as in route 7)
   // Hint: you will need to use a JOIN and aggregation to get the total plays of songs in an album
-  const page = req.query.page;
-  const pageSize = req.query.page_size ? req.query.page_size:10;
-  if (!page) {
-    connection.query(`WITH aggregation_tb AS
-    (SELECT Albums.album_id, SUM(Songs.plays) AS plays
-    FROM Songs JOIN Albums ON Songs.album_id=Albums.album_id GROUP BY Albums.album_id)
-    SELECT * FROM Albums a1 JOIN aggregation_tb ON a1.album_id=aggregation_tb.album_id ORDER BY plays DESC`, (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json({});
-      } else {
-        const items = [];
-        let i = 0;
-        while (i < data.length) {
-          items.push({album_id: data[i].album_id, title:data[i].title, plays: data[i].plays});
-          i++;
-        }
-        res.json(items);
-      }
-    });
-
-  } else {
-    connection.query(`WITH aggregation_tb AS
-    (SELECT Albums.album_id, SUM(Songs.plays) AS plays
-    FROM Songs JOIN Albums ON Songs.album_id=Albums.album_id GROUP BY Albums.album_id)
-    SELECT * FROM Albums a1 JOIN aggregation_tb ON a1.album_id=aggregation_tb.album_id ORDER BY plays DESC LIMIT ${pageSize} OFFSET ${(page-1) * pageSize}`, (err, data) => {
-      if (err || data.length === 0) {
-        console.log(err);
-        res.json({});
-      } else {
-        const items = [];
-        let i = 0;
-        while (i < data.length) {
-          items.push({album_id: data[i].album_id,title:data[i].title, plays: data[i].plays});
-          i++;
-        }
-        res.json(items);
-      }
-    });
-  }
+  res.json([]); // replace this with your implementation
 }
 
 // Route 9: GET /search_albums
 const search_songs = async function(req, res) {
   // TODO (TASK 12): return all songs that match the given search query with parameters defaulted to those specified in API spec ordered by title (ascending)
   // Some default parameters have been provided for you, but you will need to fill in the rest
-  const title = req.query.title;
+  const title = req.query.title ?? '';
   const durationLow = req.query.duration_low ?? 60;
   const durationHigh = req.query.duration_high ?? 660;
-  const plays_low = req.query.plays_low ?? 0;
-  const plays_high = req.query.plays_high ?? 1100000000;
-  const danceability_low = req.query.danceability_low ?? 0;
-  const danceability_high = req.query.danceability_high ?? 1;
-  const energy_low = req.query.energy_low ?? 0;
-  const energy_high = req.query.energy_high ?? 1;
-  const valence_low = req.query.valence_low ?? 0;
-  const valence_high = req.query.valence_high ?? 1;
-  const explicit = req.query.explicit === 'true' ? 1 : 0;
-  if (!title) {
-    connection.query(`SELECT * FROM Songs WHERE
-    duration >= ${durationLow} AND duration <= ${durationHigh} AND
-    danceability >= ${danceability_low} AND danceability <= ${danceability_high} AND
-    plays >= ${plays_low} AND plays <= ${plays_high} AND
-    energy >= ${energy_low} AND energy <= ${energy_high} AND
-    valence >=${valence_low} AND valence <= ${valence_high} AND
-    explicit <= ${explicit} ORDER BY title ASC`, (err, data) => {
-      if (err) {
-        console.log(err);
-        res.json({});
-      } else {
-        const items = [];
-        let i = 0;
-        while (i < data.length) {
-          items.push(data[i]);
-          i++;
-        }
-        res.json(items);
-      }
-    });
 
-  } else {
-    const new_title=title.replaceAll('"','');
-    connection.query(`SELECT * FROM Songs WHERE
-    duration >= ${durationLow} AND duration <= ${durationHigh} AND
-    danceability >= ${danceability_low} AND danceability <= ${danceability_high} AND
-    plays >= ${plays_low} AND plays <= ${plays_high} AND
-    energy >= ${energy_low} AND energy <= ${energy_high} AND
-    valence >=${valence_low} AND valence <= ${valence_high} AND
-    explicit <= ${explicit} AND
-    title LIKE "%${new_title}%"
-    ORDER BY title ASC`, (err, data) => {
-      if (err) {
-        console.log(err);
-        res.json({});
-      } else {
-        const items = [];
-        let i = 0;
-        while (i < data.length) {
-          items.push(data[i]);
-          i++;
-        }
-        res.json(items);
-      }
-    });
-  }
+  res.json([]); // replace this with your implementation
 }
 
 module.exports = {
