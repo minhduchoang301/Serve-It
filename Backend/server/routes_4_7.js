@@ -23,6 +23,7 @@ connection.connect(err => {
 
 app.use(express.json());
 
+// Routes 1,2,3.
 
 // Route 4: Get Synthetic Score
 app.get('/api/odds/synthetic_score', (req, res) => {
@@ -185,6 +186,87 @@ app.get('/api/players/time-series-analysis', (req, res) => {
         if (err) {
             console.error('Database query error:', err);
             return res.status(500).send('Failed to retrieve time series analysis');
+        }
+        res.json(results);
+    });
+});
+
+// Additional Routes (8 and 9)
+
+// Route 8: Get PnL for a Vanilla Strategy
+app.get('/api/odds/vanilla_pnl', (req, res) => {
+    const { player_id } = req.query;
+
+    if (!player_id) {
+        return res.status(400).send('Player ID is required');
+    }
+
+    let query = `
+    SELECT 
+        p.player_id, p.name AS player_name,
+        SUM(CASE WHEN m.winner_id = p.player_id THEN 1 ELSE 0 END) / COUNT(*) * 100 AS profit_loss
+    FROM Player p
+    JOIN Tourney_Match m ON p.player_id = m.winner_id OR p.player_id = m.loser_id
+    WHERE p.player_id = ${connection.escape(player_id)}
+    GROUP BY p.player_id`;
+
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).send('Failed to retrieve PnL data');
+        }
+        res.json(results);
+    });
+});
+
+// Route 9: Paginated Data Table Queries
+app.get('/api/players/paginated', (req, res) => {
+    const { player_id, name, hand, dob, ioc, height, is_atp, sort_column, sort_direction, limit_count, offset_count } = req.query;
+
+    let query = `
+    SELECT 
+        p.player_id, p.name, p.hand, p.dob, p.ioc, p.height, p.is_atp
+    FROM Player p
+    WHERE 1 = 1`;
+
+    if (player_id) {
+        query += ` AND p.player_id = ${connection.escape(player_id)}`;
+    }
+    if (name) {
+        query += ` AND p.name LIKE ${connection.escape('%' + name + '%')}`;
+    }
+    if (hand) {
+        query += ` AND p.hand = ${connection.escape(hand)}`;
+    }
+    if (dob) {
+        query += ` AND p.dob = ${connection.escape(dob)}`;
+    }
+    if (ioc) {
+        query += ` AND p.ioc = ${connection.escape(ioc)}`;
+    }
+    if (height) {
+        query += ` AND p.height = ${connection.escape(height)}`;
+    }
+    if (is_atp !== undefined) {
+        query += ` AND p.is_atp = ${connection.escape(is_atp)}`;
+    }
+
+    if (sort_column && sort_direction) {
+        query += ` ORDER BY ${connection.escapeId(sort_column)} ${connection.escape(sort_direction)}`;
+    }
+
+    if (limit_count) {
+        query += ` LIMIT ${connection.escape(parseInt(limit_count, 10))}`;
+    }
+
+    if (offset_count) {
+        query += ` OFFSET ${connection.escape(parseInt(offset_count, 10))}`;
+    }
+
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).send('Failed to retrieve paginated data');
         }
         res.json(results);
     });
