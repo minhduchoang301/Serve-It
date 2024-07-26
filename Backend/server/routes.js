@@ -15,187 +15,429 @@ connection.connect((err) => err && console.log(err));
 /******************
  * WARM UP ROUTES *
  ******************/
+const streaks = async function (req, res) {
+  const {
+    player_id,
+    streak_length = 3,
+    streak_type,
+    start_date,
+    end_date,
+    min_rank,
+    max_rank,
+    surface,
+    tournament_id,
+    country_code
+  } = req.query;
 
-// Route 1: GET /author/:type
-const author = async function(req, res) {
-  // TODO (TASK 1): replace the values of name and pennKey with your own
-  const name = 'Minh Duc Hoang';
-  const pennKey = 'duchoang';
+  // Initial query setup, dynamically adjusting based on streak type
+  let query = `
+SELECT 
+  p.player_id,
+  p.name AS player_name,
+  '${streak_type}' AS streak_type,
+  COUNT(*) AS streak_length,
+  MIN(m.tourney_date) AS start_date,
+  MAX(m.tourney_date) AS end_date,
+  t.surface,
+  t.tourney_name,
+  p.rank AS rank_during_streak
+FROM 
+  Tourney_Match m
+JOIN 
+  Player p ON p.player_id = ${streak_type === 'win' ? 'm.winner_id' : 'm.loser_id'}
+JOIN 
+  Tourney t ON m.tourney_id = t.tourney_id
+WHERE 
+  1 = 1`;
 
-  // checks the value of type the request parameters
-  // note that parameters are required and are specified in server.js in the endpoint by a colon (e.g. /author/:type)
-  if (req.params.type === 'name') {
-    // res.send returns data back to the requester via an HTTP response
-    res.send(`Created by ${name}`);
-  } else if (req.params.type === 'pennkey') {
-    // TODO (TASK 2): edit the else if condition to check if the request parameter is 'pennkey' and if so, send back response 'Created by [pennkey]'
-    res.send(`Created by ${pennKey}`);
-  } else {
-    // we can also send back an HTTP status code to indicate an improper request
-    res.status(400).send(`'${req.params.type}' is not a valid author type. Valid types are 'name' and 'pennkey'.`);
+  // Adding dynamic filtering based on query parameters
+  if (player_id) {
+    query += ` AND p.player_id = ${connection.escape(player_id)}`;
   }
-}
-
-// Route 2: GET /random
-const random = async function(req, res) {
-  // you can use a ternary operator to check the value of request query values
-  // which can be particularly useful for setting the default value of queries
-  // note if users do not provide a value for the query it will be undefined, which is falsey
-  const explicit = req.query.explicit === 'true' ? 1 : 0;
-
-  // Here is a complete example of how to query the database in JavaScript.
-  // Only a small change (unrelated to querying) is required for TASK 3 in this route.
-  connection.query(`
-    SELECT *
-    FROM Songs
-    WHERE explicit <= ${explicit}
-    ORDER BY RAND()
-    LIMIT 1
-  `, (err, data) => {
-    if (err || data.length === 0) {
-      // If there is an error for some reason, or if the query is empty (this should not be possible)
-      // print the error message and return an empty object instead
-      console.log(err);
-      // Be cognizant of the fact we return an empty object {}. For future routes, depending on the
-      // return type you may need to return an empty array [] instead.
-      res.json({});
-    } else {
-      // Here, we return results of the query as an object, keeping only relevant data
-      // being song_id and title which you will add. In this case, there is only one song
-      // so we just directly access the first element of the query results array (data)
-      // TODO (TASK 3): also return the song title in the response
-      res.json({
-        song_id: data[0].song_id,
-        title: data[0].title
-      });
-    }
-  });
-}
-
-/********************************
- * BASIC SONG/ALBUM INFO ROUTES *
- ********************************/
-
-// Route 3: GET /song/:song_id
-const song = async function(req, res) {
-  // TODO (TASK 4): implement a route that given a song_id, returns all information about the song
-  // Hint: unlike route 2, you can directly SELECT * and just return data[0]
-  // Most of the code is already written for you, you just need to fill in the query
-  const song_id = req.params.song_id
-  connection.query(`SELECT * FROM Songs WHERE song_id = "${song_id}"`, (err, data) => {
-    if (err || data.length === 0) {
-      console.log(err);
-      res.json({});
-    } else {
-      res.json(data[0]);
-    }
-  });
-}
-
-// Route 4: GET /album/:album_id
-const album = async function(req, res) {
-  // TODO (TASK 5): implement a route that given a album_id, returns all information about the album
-  connection.query(`SELECT * FROM Albums WHERE album_id = "${req.params.album_id}"`, (err, data) => {
-    if (err || data.length === 0) {
-      console.log(err);
-      res.json({});
-    } else {
-      res.json(data[0]);
-    }
-  });
-}
-
-// Route 5: GET /albums
-const albums = async function(req, res) {
-  // TODO (TASK 6): implement a route that returns all albums ordered by release date (descending)
-  // Note that in this case you will need to return multiple albums, so you will need to return an array of objects
-  connection.query(`SELECT * 
-  FROM Albums 
-  ORDER BY release_date DESC`, (err, data) => {
-    if (err || data.length === 0) {
-      console.log(err);
-      res.json({});
-    } else {
-      const items = [];
-      let i = 0;
-      while (i < data.length) {
-        items.push(data[i]);
-        i++;
-      }
-      res.json(items);
-    }
-  });
-}
-
-// Route 6: GET /album_songs/:album_id
-const album_songs = async function(req, res) {
-  // TODO (TASK 7): implement a route that given an album_id, returns all songs on that album ordered by track number (ascending)
-  connection.query(`SELECT * 
-  FROM Songs 
-  WHERE album_id="${req.params.album_id}"
-  ORDER BY number ASC`, (err, data) => {
-    if (err || data.length === 0) {
-      console.log(err);
-      res.json({});
-    } else {
-      const items = [];
-      let i = 0;
-      while (i < data.length) {
-        items.push({song_id: data[i].song_id, title: data[i].title, number: data[i].number, duration: data[i].duration,plays: data[i].plays});
-        i++;
-      }
-      res.json(items);
-    }
-  });
-}
-
-/************************
- * ADVANCED INFO ROUTES *
- ************************/
-
-// Route 7: GET /top_songs
-const top_songs = async function(req, res) {
-  const page = req.query.page;
-  // TODO (TASK 8): use the ternary (or nullish) operator to set the pageSize based on the query or default to 10
-  const pageSize = undefined;
-
-  if (!page) {
-    // TODO (TASK 9)): query the database and return all songs ordered by number of plays (descending)
-    // Hint: you will need to use a JOIN to get the album title as well
-    res.json([]); // replace this with your implementation
-  } else {
-    // TODO (TASK 10): reimplement TASK 9 with pagination
-    // Hint: use LIMIT and OFFSET (see https://www.w3schools.com/php/php_mysql_select_limit.asp)
-    res.json([]); // replace this with your implementation
+  if (streak_length) {
+    query += ` AND COUNT(*) >= ${connection.escape(streak_length)}`;
   }
+  if (start_date) {
+    query += ` AND m.tourney_date >= ${connection.escape(start_date)}`;
+  }
+  if (end_date) {
+    query += ` AND m.tourney_date <= ${connection.escape(end_date)}`;
+  }
+  if (min_rank) {
+    query += ` AND p.rank >= ${connection.escape(min_rank)}`;
+  }
+  if (max_rank) {
+    query += ` AND p.rank <= ${connection.escape(max_rank)}`;
+  }
+  if (surface) {
+    query += ` AND t.surface = ${connection.escape(surface)}`;
+  }
+  if (tournament_id) {
+    query += ` AND t.tourney_id = ${connection.escape(tournament_id)}`;
+  }
+  if (country_code) {
+    query += ` AND p.country_code = ${connection.escape(country_code)}`;
+  }
+
+  // Group and order by essential identifiers
+  query += `
+GROUP BY p.player_id
+HAVING COUNT(*) >= ${connection.escape(streak_length)}
+ORDER BY p.player_id, MIN(m.tourney_date)`;
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Error executing query:', err);
+      return res.status(500).send('Failed to retrieve streak data');
+    }
+    res.json(results);
+  });
 }
 
-// Route 8: GET /top_albums
-const top_albums = async function(req, res) {
-  // TODO (TASK 11): return the top albums ordered by aggregate number of plays of all songs on the album (descending), with optional pagination (as in route 7)
-  // Hint: you will need to use a JOIN and aggregation to get the total plays of songs in an album
-  res.json([]); // replace this with your implementation
+const performance_by_surface = async function (req, res) {
+  const { player_id, player_name, surface, min_matches, start_date, end_date } = req.query;
+
+  let query = `
+  SELECT 
+    p.player_id, p.name, t.surface,
+    COUNT(*) AS total_matches,
+    SUM(CASE WHEN m.winner_id = p.player_id THEN 1 ELSE 0 END) AS matches_won,
+    AVG(m.w_ace) AS avg_aces,
+    AVG(m.w_df) AS avg_double_faults,
+    AVG(m.w_1stIn) AS avg_first_serves_in
+  FROM Player p
+  JOIN Tourney_Match m ON p.player_id = m.winner_id OR p.player_id = m.loser_id
+  JOIN Tourney t ON m.tourney_id = t.tourney_id
+  WHERE 1 = 1`;
+
+  if (player_id) {
+    query += ` AND p.player_id = ${connection.escape(player_id)}`;
+  }
+  if (player_name) {
+    query += ` AND p.name LIKE ${connection.escape('%' + player_name + '%')}`;
+  }
+  if (surface) {
+    query += ` AND t.surface = ${connection.escape(surface)}`;
+  }
+  if (start_date) {
+    query += ` AND m.tourney_date >= ${connection.escape(start_date)}`;
+  }
+  if (end_date) {
+    query += ` AND m.tourney_date <= ${connection.escape(end_date)}`;
+  }
+
+  query += ' GROUP BY p.player_id, p.name, t.surface';
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).send('Failed to retrieve player performance data');
+    }
+    res.json(results);
+  });
 }
 
-// Route 9: GET /search_albums
-const search_songs = async function(req, res) {
-  // TODO (TASK 12): return all songs that match the given search query with parameters defaulted to those specified in API spec ordered by title (ascending)
-  // Some default parameters have been provided for you, but you will need to fill in the rest
-  const title = req.query.title ?? '';
-  const durationLow = req.query.duration_low ?? 60;
-  const durationHigh = req.query.duration_high ?? 660;
+const analysis = async function (req, res) {
+  const { odds_maker, start_date, end_date, min_odds, max_odds, min_rank, max_rank } = req.query;
 
-  res.json([]); // replace this with your implementation
+  let query = `
+  SELECT 
+    o.odds_maker,
+    COUNT(*) AS total_bets,
+    AVG(o.odds) AS avg_odds,
+    VAR_POP(o.odds) AS variance,
+    SUM(CASE WHEN p.player_id = m.winner_id THEN 1 ELSE 0 END) / COUNT(*) * 100 AS hit_rate
+  FROM Odds o
+  JOIN Tourney_Match m ON o.match_num = m.match_num AND o.tourney_id = m.tourney_id
+  JOIN Player p ON o.player_id = p.player_id
+  WHERE 1 = 1`;
+
+  if (odds_maker) {
+    query += ` AND o.odds_maker = ${connection.escape(odds_maker)}`;
+  }
+  if (start_date) {
+    query += ` AND m.tourney_date >= ${connection.escape(start_date)}`;
+  }
+  if (end_date) {
+    query += ` AND m.tourney_date <= ${connection.escape(end_date)}`;
+  }
+  if (min_odds) {
+    query += ` AND o.odds >= ${min_odds}`;
+  }
+  if (max_odds) {
+    query += ` AND o.odds <= ${max_odds}`;
+  }
+  if (min_rank) {
+    query += ` AND p.rank >= ${min_rank}`;
+  }
+  if (max_rank) {
+    query += ` AND p.rank <= ${max_rank}`;
+  }
+
+  query += ' GROUP BY o.odds_maker';
+
+  connection.query(query, (err, results) => {
+    if (err) {
+      console.error('Database query error:', err);
+      return res.status(500).send('Failed to retrieve odds maker analysis');
+    }
+    res.json(results);
+  });
 }
+
+const synthetic_score = async function (req, res) {
+  const { player_id, player_name, surface } = req.query;
+
+    let query = `
+    SELECT 
+        p.player_id, p.name AS player_name, t.surface,
+        SUM(m.w_1stWon + m.w_2ndWon - m.w_df) AS synthetic_score
+    FROM Player p
+    JOIN Tourney_Match m ON p.player_id = m.winner_id OR p.player_id = m.loser_id
+    JOIN Tourney t ON m.tourney_id = t.tourney_id
+    WHERE 1 = 1`;
+
+    if (player_id) {
+        query += ` AND p.player_id = ${connection.escape(player_id)}`;
+    }
+    if (player_name) {
+        query += ` AND p.name LIKE ${connection.escape('%' + player_name + '%')}`;
+    }
+    if (surface) {
+        query += ` AND t.surface = ${connection.escape(surface)}`;
+    }
+
+    query += ' GROUP BY p.player_id, t.surface';
+
+    connection.query(query, (err, results) => {
+        if (err) {
+            console.error('Database query error:', err);
+            return res.status(500).send('Failed to retrieve synthetic score data');
+        }
+        res.json(results);
+    });
+}
+
+// Route 5: Get PnL for a Vanilla Strategy
+const vanilla_pnl = async function (req, res) {
+  const { player_id } = req.query;
+
+  if (!player_id) {
+      return res.status(400).send('Player ID is required');
+  }
+
+  let query = `
+  SELECT 
+      p.player_id, p.name AS player_name,
+      SUM(CASE WHEN m.winner_id = p.player_id THEN 1 ELSE 0 END) / COUNT(*) * 100 AS profit_loss
+  FROM Player p
+  JOIN Tourney_Match m ON p.player_id = m.winner_id OR p.player_id = m.loser_id
+  WHERE p.player_id = ${connection.escape(player_id)}
+  GROUP BY p.player_id`;
+
+  connection.query(query, (err, results) => {
+      if (err) {
+          console.error('Database query error:', err);
+          return res.status(500).send('Failed to retrieve PnL data');
+      }
+      res.json(results);
+  });
+};
+
+// Route 6: Paginated Data Table Queries
+const paginated = async function (req, res) {
+  const { player_id, name, hand, dob, ioc, height, is_atp, sort_column, sort_direction, limit_count, offset_count } = req.query;
+
+  let query = `
+  SELECT 
+      p.player_id, p.name, p.hand, p.dob, p.ioc, p.height, p.is_atp
+  FROM Player p
+  WHERE 1 = 1`;
+
+  if (player_id) {
+      query += ` AND p.player_id = ${connection.escape(player_id)}`;
+  }
+  if (name) {
+      query += ` AND p.name LIKE ${connection.escape('%' + name + '%')}`;
+  }
+  if (hand) {
+      query += ` AND p.hand = ${connection.escape(hand)}`;
+  }
+  if (dob) {
+      query += ` AND p.dob = ${connection.escape(dob)}`;
+  }
+  if (ioc) {
+      query += ` AND p.ioc = ${connection.escape(ioc)}`;
+  }
+  if (height) {
+      query += ` AND p.height = ${connection.escape(height)}`;
+  }
+  if (is_atp !== undefined) {
+      query += ` AND p.is_atp = ${connection.escape(is_atp)}`;
+  }
+
+  if (sort_column && sort_direction) {
+      query += ` ORDER BY ${connection.escapeId(sort_column)} ${connection.escape(sort_direction)}`;
+  }
+
+  if (limit_count) {
+      query += ` LIMIT ${connection.escape(parseInt(limit_count, 10))}`;
+  }
+
+  if (offset_count) {
+      query += ` OFFSET ${connection.escape(parseInt(offset_count, 10))}`;
+  }
+
+  connection.query(query, (err, results) => {
+      if (err) {
+          console.error('Database query error:', err);
+          return res.status(500).send('Failed to retrieve paginated data');
+      }
+      res.json(results);
+  });
+};
+
+// // Route 7: Find Underdog
+const underdog = async function (req, res) {
+  const { surface, tournament_id, tournament_level, is_atp } = req.query;
+
+  let query = `
+  SELECT 
+      p.player_id, p.name AS player_name, COUNT(*) AS times_beat_the_odds
+  FROM Player p
+  JOIN Odds o ON p.player_id = o.player_id
+  JOIN Tourney_Match m ON o.match_num = m.match_num AND o.tourney_id = m.tourney_id
+  JOIN Tourney t ON m.tourney_id = t.tourney_id
+  WHERE 1 = 1`;
+
+  if (surface) {
+      query += ` AND t.surface = ${connection.escape(surface)}`;
+  }
+  if (tournament_id) {
+      query += ` AND t.tourney_id = ${connection.escape(tournament_id)}`;
+  }
+  if (tournament_level) {
+      query += ` AND t.level = ${connection.escape(tournament_level)}`;
+  }
+  if (is_atp !== undefined) {
+      query += ` AND p.is_atp = ${connection.escape(is_atp)}`;
+  }
+
+  query += `
+  GROUP BY p.player_id
+  ORDER BY times_beat_the_odds DESC`;
+
+  connection.query(query, (err, results) => {
+      if (err) {
+          console.error('Database query error:', err);
+          return res.status(500).send('Failed to retrieve underdog data');
+      }
+      res.json(results);
+  });
+};
+
+// // Route 8: Get PnL for a Factor-Based Strategy
+const factor_strategy = async function (req, res) {
+  const { fields, weights, year } = req.query;
+
+  if (!fields || !weights || !year || fields.length !== weights.length) {
+      return res.status(400).send('Invalid input data');
+  }
+
+  let selectFields = fields.map((field, index) => `SUM(${field} * ${weights[index]})`).join(' + ');
+
+  let query = `
+  SELECT 
+      p.player_id, p.name AS player_name,
+      (${selectFields}) AS synthetic_score,
+      SUM(CASE WHEN m.tourney_date < ${year} THEN 1 ELSE 0 END) AS prior_matches,
+      SUM(CASE WHEN m.tourney_date < ${year} AND m.winner_id = p.player_id THEN 1 ELSE 0 END) AS prior_wins
+  FROM Player p
+  JOIN Tourney_Match m ON p.player_id = m.winner_id OR p.player_id = m.loser_id
+  WHERE m.tourney_date < ${connection.escape(year)}
+  GROUP BY p.player_id
+  HAVING prior_matches > 0
+  ORDER BY synthetic_score DESC
+  LIMIT 1`;
+
+  connection.query(query, (err, results) => {
+      if (err) {
+          console.error('Database query error:', err);
+          return res.status(500).send('Failed to retrieve PnL data');
+      }
+      const bestPlayer = results[0];
+      if (bestPlayer) {
+          res.json({
+              player_id: bestPlayer.player_id,
+              player_name: bestPlayer.player_name,
+              synthetic_score: bestPlayer.synthetic_score,
+              profit_loss: (bestPlayer.prior_wins / bestPlayer.prior_matches) * 100
+          });
+      } else {
+          res.status(404).send('No data available for the given year and conditions');
+      }
+  });
+};
+
+// // Route 9: Time Series Analysis of Player Performance
+const time_series = async function (req, res) {
+  const { player_id, surface, start_date, end_date, seasonality } = req.query;
+
+  let groupByPeriod;
+  if (seasonality === 'monthly') {
+      groupByPeriod = "DATE_FORMAT(m.match_date, '%Y-%m')";
+  } else if (seasonality === 'yearly') {
+      groupByPeriod = "YEAR(m.match_date)";
+  } else {
+      groupByPeriod = "DATE_FORMAT(m.match_date, '%Y-%m-%d')";
+  }
+
+  let query = `
+  SELECT 
+      p.player_id, p.name AS player_name, t.surface,
+      ${groupByPeriod} AS period,
+      COUNT(*) AS total_matches,
+      SUM(CASE WHEN m.winner_id = p.player_id THEN 1 ELSE 0 END) AS matches_won,
+      AVG(m.w_ace) AS avg_aces,
+      AVG(m.w_df) AS avg_double_faults
+  FROM Player p
+  JOIN Tourney_Match m ON p.player_id = m.winner_id OR p.player_id = m.loser_id
+  JOIN Tourney t ON m.tourney_id = t.tourney_id
+  WHERE 1 = 1`;
+
+  if (player_id) {
+      query += ` AND p.player_id = ${connection.escape(player_id)}`;
+  }
+  if (surface) {
+      query += ` AND t.surface = ${connection.escape(surface)}`;
+  }
+  if (start_date) {
+      query += ` AND m.match_date >= ${connection.escape(start_date)}`;
+  }
+  if (end_date) {
+      query += ` AND m.match_date <= ${connection.escape(end_date)}`;
+  }
+
+  query += ` GROUP BY p.player_id, t.surface, period ORDER BY period ASC`;
+
+  connection.query(query, (err, results) => {
+      if (err) {
+          console.error('Database query error:', err);
+          return res.status(500).send('Failed to retrieve time series analysis');
+      }
+      res.json(results);
+  });
+};
+
 
 module.exports = {
-  author,
-  random,
-  song,
-  album,
-  albums,
-  album_songs,
-  top_songs,
-  top_albums,
-  search_songs,
+  streaks,
+  performance_by_surface,
+  analysis,
+  synthetic_score,
+  vanilla_pnl,
+  paginated,
+  underdog,
+  factor_strategy,
+  time_series
 }
