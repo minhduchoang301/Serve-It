@@ -27,7 +27,7 @@ const streaks = async function (req, res) {
     surface,
     tournament_id,
     country_code
-  } = req.query;
+  } = req.body;
 
   // Initial query setup, dynamically adjusting based on streak type
   let query = `
@@ -138,7 +138,7 @@ const performance_by_surface = async function (req, res) {
 }
 
 const analysis = async function (req, res) {
-  const { odds_maker, start_date, end_date, min_odds, max_odds, min_rank, max_rank } = req.query;
+  const { odds_maker, start_date, end_date, min_odds, max_odds, min_rank, max_rank } = req.body;
 
   let query = `
   SELECT 
@@ -246,7 +246,7 @@ const vanilla_pnl = async function (req, res) {
 
 // Route 6: Paginated Data Table Queries
 const paginated = async function (req, res) {
-  const { player_id, name, hand, dob, ioc, height, is_atp, sort_column, sort_direction, limit_count, offset_count } = req.query;
+  const { player_id, name, hand, dob, ioc, height, is_atp, sort_column, sort_direction, limit_count, offset_count } = req.body;
 
   let query = `
   SELECT 
