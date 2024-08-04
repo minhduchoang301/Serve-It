@@ -21,7 +21,7 @@ const Dashboard = () => {
     <Box m="20px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="Serve-It" subtitle="Some sort of tagline here" />
+        <Header title="Serve-It" subtitle="The Ace  in Tennis Analytics" />
 
         <Box>
           <Button
@@ -55,10 +55,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="2,214"
+            title="72,107"
             subtitle="Unique Players"
-            progress="0.75"
-            increase="+25%"
             icon={
               <GroupsIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -76,8 +74,6 @@ const Dashboard = () => {
           <StatBox
             title="431,225"
             subtitle="Matches Played"
-            progress="0.50"
-            increase="+21%"
             icon={
               <SportsTennisIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -93,10 +89,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="150"
-            subtitle="Tournaments Held"
-            progress="0.30"
-            increase="+5%"
+            title="762"
+            subtitle="Annual and One-Time Tournaments"
             icon={
               <EmojiEventsIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -114,8 +108,6 @@ const Dashboard = () => {
           <StatBox
             title="123,456"
             subtitle="Matches w/ Odds Saved"
-            progress="0.80"
-            increase="+43%"
             icon={
               <ShowChartIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}

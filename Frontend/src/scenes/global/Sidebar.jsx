@@ -132,7 +132,7 @@ const MySidebar = () => {
             )}
             <Item
               title="Players"
-              to="/team"
+              to="/player_data"
               icon={<PeopleOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
@@ -146,7 +146,7 @@ const MySidebar = () => {
             />
             <Item
               title="Tournaments"
-              to="/invoices"
+              to="/tourney_data"
               icon={<EmojiEventsIcon />}
               selected={selected}
               setSelected={setSelected}

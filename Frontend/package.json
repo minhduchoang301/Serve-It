@@ -21,6 +21,7 @@
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "country-iso-3-to-2": "^1.1.1",
     "formic": "^0.0.10",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

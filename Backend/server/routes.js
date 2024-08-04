@@ -429,7 +429,6 @@ const time_series = async function (req, res) {
   });
 };
 
-
 module.exports = {
   streaks,
   performance_by_surface,

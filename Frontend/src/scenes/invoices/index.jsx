@@ -8,7 +8,7 @@ const Invoices = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const columns = [
-    { field: "id", headerName: "ID" },
+    { field: "player_id", headerName: "PLAYER_ID" },
     {
       field: "name",
       headerName: "Name",
@@ -16,24 +16,20 @@ const Invoices = () => {
       cellClassName: "name-column--cell",
     },
     {
-      field: "phone",
-      headerName: "Phone Number",
+      field: "hand",
+      headerName: "Handedness",
       flex: 1,
     },
     {
-      field: "email",
-      headerName: "Email",
+      field: "dob",
+      headerName: "Date of Birth",
       flex: 1,
     },
     {
       field: "cost",
       headerName: "Cost",
       flex: 1,
-      renderCell: (params) => (
-        <Typography color={colors.greenAccent[500]}>
-          ${params.row.cost}
-        </Typography>
-      ),
+
     },
     {
       field: "date",
@@ -45,8 +41,8 @@ const Invoices = () => {
   return (
     <Box m="20px">
       <Header        
-        title="Sample Table"
-        subtitle="This is what our data will look like" />
+        title="Player Data"
+        subtitle="Get Data For Particular Players" />
       <Box
         m="40px 0 0 0"
         height="75vh"
@@ -82,4 +78,4 @@ const Invoices = () => {
   );
 };
 
-export default Invoices;
+export default Invoices;  
