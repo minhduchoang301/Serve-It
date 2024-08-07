@@ -1,10 +1,9 @@
 import { useTheme } from "@mui/material";
 import { ResponsiveTimeRange } from "@nivo/calendar";
 import { tokens } from "../theme";
-import { mockCalendarData, mockCalendarData as mockData } from "../data/mockData";
 
 
-const MyResponsiveTimeRange = ({ data = mockCalendarData, year}) => {
+const MyResponsiveTimeRange = ({ data, year}) => {
     const theme = useTheme();
     const from = `${year}-01-01`;
     const to = `${year}-12-31`;

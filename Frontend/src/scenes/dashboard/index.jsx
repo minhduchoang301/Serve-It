@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import axios from 'axios';
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import Header from "../../components/Header";
 import StatBox from "../../components/StatBox";
 import RankBump from "../../components/RankBump";
@@ -131,7 +130,7 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="123,456"
+            title="20,510"
             subtitle="Matches w/ Odds Saved"
             icon={
               <ShowChartIcon
