@@ -16,6 +16,9 @@ import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 import SportsTennisIcon from '@mui/icons-material/SportsTennis';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupsIcon from '@mui/icons-material/Groups';
+import ScatterPlotIcon from '@mui/icons-material/ScatterPlot';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
+import PersonIcon from '@mui/icons-material/Person';
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -139,7 +142,7 @@ const MySidebar = () => {
             />
             <Item
               title="Matches"
-              to="/contacts"
+              to="/match_data"
               icon={<SportsTennisIcon />}
               selected={selected}
               setSelected={setSelected}
@@ -168,67 +171,30 @@ const MySidebar = () => {
               </Typography>
             )}
             <Item
-              title="Bar Chart"
-              to="/bar"
-              icon={<BarChartOutlinedIcon />}
+              title="Surface Analysis"
+              to="/surface_swarm"
+              icon={<ScatterPlotIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Pie Chart"
-              to="/pie"
-              icon={<PieChartOutlineOutlinedIcon />}
+              title="Goat Galaxy"
+              to="/goat_galaxy"
+              icon={<RocketLaunchIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Line Chart"
-              to="/line"
+              title="Betting Dashboard"
+              to="/betting"
               icon={<TimelineOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Geography Chart"
-              to="/geography"
-              icon={<MapOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            {isCollapsed ? (
-              <Typography
-                variant="h6"
-                color={colors.grey[300]}
-                sx={{ m: "15px 0 5px 20px", textAlign: "center" }}
-              >
-              </Typography>
-            ) : (
-              <Typography
-                variant="h6"
-                color={colors.grey[300]}
-                sx={{ m: "15px 0 5px 20px" }}
-              >
-                Pages
-              </Typography>
-            )}
-            <Item
-              title="Player Directory"
-              to="/form"
-              icon={<GroupsIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Calendar"
-              to="/calendar"
-              icon={<CalendarTodayOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="FAQ Page"
-              to="/faq"
-              icon={<HelpOutlineOutlinedIcon />}
+              title="Player Analysis"
+              to="/player_betting"
+              icon={<PersonIcon />}
               selected={selected}
               setSelected={setSelected}
             />

@@ -5,8 +5,13 @@ import MySidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
 import Player_Data from "./scenes/player_data";
 import Tourney_Data from "./scenes/tourney_data";
+import Match_Data from "./scenes/match_data";
 import Invoices from "./scenes/invoices";
-import Contacts from "./scenes/contacts";
+import SwarmPlotPage from "./scenes/surface_swarm";
+import GalaxyPage from "./scenes/goat_galaxy/goat_galaxy";
+import TimeSeriesPage from "./scenes/time_series";
+import PlayerSearchPage from "./scenes/PlayerBetting";
+import BettingDashboard from "./scenes/bettingDashboard";
 import Bar from "./scenes/bar";
 import Line from "./scenes/line";
 import Pie from "./scenes/pie";
@@ -32,7 +37,10 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/player_data" element={<Player_Data />} />
               <Route path="/tourney_data" element={<Tourney_Data />} />
-              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/match_data" element={<Match_Data />} />
+              <Route path="/surface_swarm" element={<SwarmPlotPage />} />
+              <Route path="/goat_galaxy" element={<GalaxyPage />} />
+              <Route path="/time_series" element={<TimeSeriesPage />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/bar" element={<Bar />} />
               <Route path="/pie" element={<Pie />} />
@@ -40,6 +48,8 @@ function App() {
               <Route path="/faq" element={<FAQ />} />
               <Route path="/geography" element={<Geography />} />
               <Route path="/player/:player_id" element={<PlayerPage />} />
+              <Route path="/betting" element={<BettingDashboard />} />
+              <Route path="/player_betting" element={<PlayerSearchPage />} />
             </Routes>
           </main>
         </div>

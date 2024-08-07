@@ -99,11 +99,16 @@ const PlayerPage = () => {
 
   // Function to get country emoji
   const getCountryEmoji = (countryCode) => {
-    const codePoints = getCountryISO2(countryCode)
-      .toUpperCase()
-      .split('')
-      .map(char => 127397 + char.charCodeAt());
-    return String.fromCodePoint(...codePoints);
+    try {
+      const codePoints = getCountryISO2(countryCode)
+        .toUpperCase()
+        .split('')
+        .map(char => 127397 + char.charCodeAt());
+      return String.fromCodePoint(...codePoints);
+    } catch (error) {
+      // Return white flag emoji if there's an error
+      return '🏳️';
+    }
   };
 
   // Format date to MM/DD/YYYY
