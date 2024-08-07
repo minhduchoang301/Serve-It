@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, CircularProgress, Autocomplete, InputBase, IconButton, Paper, Divider, useTheme } from '@mui/material';
+import { 
+  Box, 
+  Typography, 
+  CircularProgress, 
+  Autocomplete, 
+  InputBase, 
+  IconButton, 
+  Paper, 
+  Divider, 
+  useTheme, 
+  Alert 
+} from '@mui/material';
 import SearchIcon from "@mui/icons-material/Search";
 import SportsBaseballIcon from '@mui/icons-material/SportsBaseball';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -16,6 +27,7 @@ const PlayerSearchPage = () => {
   const [options, setOptions] = useState([]);
   const [playerData, setPlayerData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const searchPlayers = async (term) => {
     try {
@@ -25,6 +37,7 @@ const PlayerSearchPage = () => {
       setOptions(response.data);
     } catch (error) {
       console.error("Error searching players:", error);
+      setError("An error occurred while searching for players. Please try again.");
     }
   };
 
@@ -40,6 +53,7 @@ const PlayerSearchPage = () => {
 
   const fetchPlayerData = async (playerId) => {
     setLoading(true);
+    setError(null);
     try {
       const [streaksRes, pnlRes, underdogRes] = await Promise.all([
         axios.get(`http://${config.server_host}:${config.server_port}/api/players/streaks`, { params: { player_id: playerId } }),
@@ -51,9 +65,16 @@ const PlayerSearchPage = () => {
       const pnl = pnlRes.data[0];
       const underdog = underdogRes.data[0];
 
-      setPlayerData({ streaks, pnl, underdog });
+      if (!streaks.length && !pnl && !underdog) {
+        setError("No data found for this player.");
+        setPlayerData(null);
+      } else {
+        setPlayerData({ streaks, pnl, underdog });
+      }
     } catch (error) {
       console.error('Error fetching player data:', error);
+      setError("An error occurred while fetching player data. Please try again.");
+      setPlayerData(null);
     }
     setLoading(false);
   };
@@ -70,6 +91,14 @@ const PlayerSearchPage = () => {
   };
 
   const renderResults = () => {
+    if (error) {
+      return (
+        <Alert severity="info" sx={{ mt: 2, backgroundColor: colors.primary[400], color: colors.grey[100] }}>
+          {error}
+        </Alert>
+      );
+    }
+
     if (!playerData) return null;
 
     const { streaks, pnl, underdog } = playerData;
