@@ -6,17 +6,11 @@ import Dashboard from "./scenes/dashboard";
 import Player_Data from "./scenes/player_data";
 import Tourney_Data from "./scenes/tourney_data";
 import Match_Data from "./scenes/match_data";
-import Invoices from "./scenes/invoices";
 import SwarmPlotPage from "./scenes/surface_swarm";
 import GalaxyPage from "./scenes/goat_galaxy/goat_galaxy";
 import TimeSeriesPage from "./scenes/time_series";
 import PlayerSearchPage from "./scenes/PlayerBetting";
 import BettingDashboard from "./scenes/bettingDashboard";
-import Bar from "./scenes/bar";
-import Line from "./scenes/line";
-import Pie from "./scenes/pie";
-import FAQ from "./scenes/faq";
-import Geography from "./scenes/geography";
 import PlayerPage from "./scenes/player";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
@@ -41,12 +35,6 @@ function App() {
               <Route path="/surface_swarm" element={<SwarmPlotPage />} />
               <Route path="/goat_galaxy" element={<GalaxyPage />} />
               <Route path="/time_series" element={<TimeSeriesPage />} />
-              <Route path="/invoices" element={<Invoices />} />
-              <Route path="/bar" element={<Bar />} />
-              <Route path="/pie" element={<Pie />} />
-              <Route path="/line" element={<Line />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/geography" element={<Geography />} />
               <Route path="/player/:player_id" element={<PlayerPage />} />
               <Route path="/betting" element={<BettingDashboard />} />
               <Route path="/player_betting" element={<PlayerSearchPage />} />
