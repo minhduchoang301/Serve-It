@@ -524,7 +524,7 @@ const factor_strategy = async function (req, res) {
       tm.winner_id,
       o.odds,
       CASE
-        WHEN bs.bet_on_player = tm.winner_id THEN o.odds - 1
+        WHEN bs.bet_on_player = tm.winner_id THEN o.odds
         ELSE -1
       END AS pnl
     FROM
