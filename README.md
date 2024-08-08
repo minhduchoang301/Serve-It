@@ -22,7 +22,7 @@ To run Serve-It locally, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone [repository-url]
+   git clone https://github.com/minhduchoang301/Serve-It
    ```
 
 2. Navigate to the Backend/server directory:
